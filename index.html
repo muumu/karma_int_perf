@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 		<link rel="stylesheet" href="css/reveal.min.css">
-		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+		<link rel="stylesheet" href="css/theme/custom.css" id="theme">
 
 		<!-- For syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/zenburn.css">
@@ -42,316 +42,821 @@
 
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
-				<section>
-					<h1>Reveal.js</h1>
-					<h3>HTML Presentations Made Easy</h3>
-					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
-					</p>
-				</section>
+<section>
+<h2>Karmaの高速化技術</h2>
+<h3>整数 -> 文字列変換</h3>
+<p>
+<small>Created by Nobuyuki Mizoguchi</small>
+</p>
+</section>
 
-				<section>
-					<h2>Heads Up</h2>
-					<p>
-						reveal.js is a framework for easily creating beautiful presentations using HTML. You'll need a browser with
-						support for CSS 3D transforms to see it in its full glory.
-					</p>
+<section>
+    <section>
+    <h2>Boost.Spirit.Karmaは速い</h2>
+    <ul>
+    <li>数値 -> 文字列変換単体でも速い</li>
+    <li>sprintfに対してぶっちぎりで速い</li>
+    <li>32bit整数変換においてitoaにも勝る</li>
+    </ul>
+    <p>そんなKarmaについてitoaと比較しながらお話します。</p>
+    <br>
+    <p>※ソースは下のページに用意しておきました。</p>
+</section>
+<section>
+<h2>_itoa.cのソース</h2>
+<pre><code class="cpp">
+char *
+_itoa_word (_ITOA_WORD_TYPE value, char *buflim,
+        unsigned int base, int upper_case)
+{
+  const char *digits = (upper_case
+            ? _itoa_upper_digits
+            : _itoa_lower_digits);
 
-					<aside class="notes">
-						Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-					</aside>
-				</section>
+  switch (base)
+    {
+#define SPECIAL(Base)                                 \
+    case Base:                                    \
+      do                                      \
+    *--buflim = digits[value % Base];                     \
+      while ((value /= Base) != 0);                       \
+      break
 
-				<!-- Example of nested vertical slides -->
-				<section>
-					<section>
-						<h2>Vertical Slides</h2>
-						<p>
-							Slides can be nested inside of other slides,
-							try pressing <a href="#" class="navigate-down">down</a>.
-						</p>
-						<a href="#" class="image navigate-down">
-							<img width="178" height="238" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section>
-						<h2>Basement Level 1</h2>
-						<p>Press down or up to navigate.</p>
-					</section>
-					<section>
-						<h2>Basement Level 2</h2>
-						<p>Cornify</p>
-						<a class="test" href="http://cornify.com">
-							<img width="280" height="326" src="https://s3.amazonaws.com/hakim-static/reveal-js/cornify.gif" alt="Unicorn">
-						</a>
-					</section>
-					<section>
-						<h2>Basement Level 3</h2>
-						<p>That's it, time to go back up.</p>
-						<a href="#/2" class="image">
-							<img width="178" height="238" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Up arrow" style="-webkit-transform: rotate(180deg);">
-						</a>
-					</section>
-				</section>
-
-				<section>
-					<h2>Slides</h2>
-					<p>
-						Not a coder? No problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slid.es" target="_blank">http://slid.es</a>.
-					</p>
-				</section>
-
-				<section>
-					<h2>Point of View</h2>
-					<p>
-						Press <strong>ESC</strong> to enter the slide overview.
-					</p>
-					<p>
-						Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-					</p>
-				</section>
-
-				<section>
-					<h2>Works in Mobile Safari</h2>
-					<p>
-						Try it out! You can swipe through the slides and pinch your way to the overview.
-					</p>
-				</section>
-
-				<section>
-					<h2>Marvelous Unordered List</h2>
-					<ul>
-						<li>No order here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-						<li>Or here</li>
-					</ul>
-				</section>
-
-				<section>
-					<h2>Fantastic Ordered List</h2>
-					<ol>
-						<li>One is smaller than...</li>
-						<li>Two is smaller than...</li>
-						<li>Three!</li>
-					</ol>
-				</section>
-
-				<section data-markdown>
-					<script type="text/template">
-						## Markdown support
-
-						For those of you who like that sort of thing. Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
-
-						```
-						<section data-markdown>
-						  ## Markdown support
-
-						  For those of you who like that sort of thing.
-						  Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
-						</section>
-						```
-					</script>
-				</section>
-
-				<section id="transitions">
-					<h2>Transition Styles</h2>
-					<p>
-						You can select from different transitions, like: <br>
-						<a href="?transition=cube#/transitions">Cube</a> -
-						<a href="?transition=page#/transitions">Page</a> -
-						<a href="?transition=concave#/transitions">Concave</a> -
-						<a href="?transition=zoom#/transitions">Zoom</a> -
-						<a href="?transition=linear#/transitions">Linear</a> -
-						<a href="?transition=fade#/transitions">Fade</a> -
-						<a href="?transition=none#/transitions">None</a> -
-						<a href="?#/transitions">Default</a>
-					</p>
-				</section>
-
-				<section id="themes">
-					<h2>Themes</h2>
-					<p>
-						Reveal.js comes with a few themes built in: <br>
-						<a href="?#/themes">Default</a> -
-						<a href="?theme=sky#/themes">Sky</a> -
-						<a href="?theme=beige#/themes">Beige</a> -
-						<a href="?theme=simple#/themes">Simple</a> -
-						<a href="?theme=serif#/themes">Serif</a> -
-						<a href="?theme=night#/themes">Night</a> <br>
-						<a href="?theme=moon#/themes">Moon</a> -
-						<a href="?theme=solarized#/themes">Solarized</a>
-					</p>
-					<p>
-						<small>
-							* Theme demos are loaded after the presentation which leads to flicker. In production you should load your theme in the <code>&lt;head&gt;</code> using a <code>&lt;link&gt;</code>.
-						</small>
-					</p>
-				</section>
-
-				<section>
-					<h2>Global State</h2>
-					<p>
-						Set <code>data-state="something"</code> on a slide and <code>"something"</code>
-						will be added as a class to the document element when the slide is open. This lets you
-						apply broader style changes, like switching the background.
-					</p>
-				</section>
-
-				<section data-state="customevent">
-					<h2>Custom Events</h2>
-					<p>
-						Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-					</p>
-					<pre><code data-trim contenteditable style="font-size: 18px; margin-top: 20px;">
-Reveal.addEventListener( 'customevent', function() {
-	console.log( '"customevent" has fired' );
-} );
-					</code></pre>
-				</section>
-
-				<section>
-					<section data-background="#007777">
-						<h2>Slide Backgrounds</h2>
-						<p>
-							Set <code>data-background="#007777"</code> on a slide to change the full page background to the given color. All CSS color formats are supported.
-						</p>
-						<a href="#" class="image navigate-down">
-							<img width="178" height="238" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png">
-						<h2>Image Backgrounds</h2>
-						<pre><code>&lt;section data-background="image.png"&gt;</code></pre>
-					</section>
-					<section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" data-background-repeat="repeat" data-background-size="100px">
-						<h2>Repeated Image Backgrounds</h2>
-						<pre><code style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
-					</section>
-				</section>
-
-				<section data-transition="linear" data-background="#4d7e65" data-background-transition="slide">
-					<h2>Background Transitions</h2>
-					<p>
-						Pass reveal.js the <code>backgroundTransition: 'slide'</code> config argument to make backgrounds slide rather than fade.
-					</p>
-				</section>
-
-				<section data-transition="linear" data-background="#8c4738" data-background-transition="slide">
-					<h2>Background Transition Override</h2>
-					<p>
-						You can override background transitions per slide by using <code>data-background-transition="slide"</code>.
-					</p>
-				</section>
-
-				<section>
-					<h2>Clever Quotes</h2>
-					<p>
-						These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
-					</p>
-					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-						&ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-						reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-					</blockquote>
-				</section>
-
-				<section>
-					<h2>Pretty Code</h2>
-					<pre><code data-trim contenteditable>
-function linkify( selector ) {
-  if( supports3DTransforms ) {
-
-    var nodes = document.querySelectorAll( selector );
-
-    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
-      var node = nodes[i];
-
-      if( !node.className ) {
-        node.className += ' roll';
-      }
+      SPECIAL (10);
+      SPECIAL (16);
+      SPECIAL (8);
+    default:
+      do
+    *--buflim = digits[value % base];
+      while ((value /= base) != 0);
     }
-  }
+  return buflim;
 }
-					</code></pre>
-					<p>Courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
-				</section>
+#undef SPECIAL
+</code></pre>
+</section>
 
-				<section>
-					<h2>Intergalactic Interconnections</h2>
-					<p>
-						You can link between slides internally,
-						<a href="#/2/3">like this</a>.
-					</p>
-				</section>
+<section>
+<h2>Karmaのソース</h2>
+<pre><code class="cpp">
+#define BOOST_KARMA_NUMERICS_INNER_LOOP_PREFIX(z, x, data) \
+if (!traits::test_zero(n)) { \
+int ch = radix_type::call(remainder_type::call(n)); \
+n = divide_type::call(n, num, ++exp); \
+/**/
 
-				<section>
-					<section id="fragments">
-						<h2>Fragmented Views</h2>
-						<p>Hit the next arrow...</p>
-						<p class="fragment">... to step through ...</p>
-						<ol>
-							<li class="fragment"><code>any type</code></li>
-							<li class="fragment"><em>of view</em></li>
-							<li class="fragment"><strong>fragments</strong></li>
-						</ol>
+#define BOOST_KARMA_NUMERICS_INNER_LOOP_SUFFIX(z, x, data) \
+*sink = char(ch); \
+++sink; \
+} \
+/**/
 
-						<aside class="notes">
-							This slide has fragments which are also stepped through in the notes window.
-						</aside>
-					</section>
-					<section>
-						<h2>Fragment Styles</h2>
-						<p>There's a few styles of fragments, like:</p>
-						<p class="fragment grow">grow</p>
-						<p class="fragment shrink">shrink</p>
-						<p class="fragment roll-in">roll-in</p>
-						<p class="fragment fade-out">fade-out</p>
-						<p class="fragment highlight-red">highlight-red</p>
-						<p class="fragment highlight-green">highlight-green</p>
-						<p class="fragment highlight-blue">highlight-blue</p>
-						<p class="fragment current-visible">current-visible</p>
-						<p class="fragment highlight-current-blue">highlight-current-blue</p>
-					</section>
-				</section>
+template &lt;typename OutputIterator, typename T&gt;
+static bool
+call(OutputIterator& sink, T n, T& num, int exp)
+{
+    // remainder_type::call returns n % Radix
+    int ch = radix_type::call(remainder_type::call(n));
+    n = divide_type::call(n, num, ++exp);
 
-				<section>
-					<h2>Spectacular image!</h2>
-					<a class="image" href="http://lab.hakim.se/meny/" target="_blank">
-						<img width="320" height="299" src="http://s3.amazonaws.com/hakim-static/portfolio/images/meny.png" alt="Meny">
-					</a>
-				</section>
+    BOOST_PP_REPEAT(
+        BOOST_KARMA_NUMERICS_LOOP_UNROLL,
+        BOOST_KARMA_NUMERICS_INNER_LOOP_PREFIX, _);
 
-				<section>
-					<h2>Export to PDF</h2>
-					<p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, below is an example that's been uploaded to SlideShare.</p>
-					<iframe id="slideshare" src="http://www.slideshare.net/slideshow/embed_code/13872948" width="455" height="356" style="margin:0;overflow:hidden;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe>
-					<script>
-						document.getElementById('slideshare').attributeName = 'allowfullscreen';
-					</script>
-				</section>
+    if (!traits::test_zero(n))
+        call(sink, n, num, exp);
 
-				<section>
-					<h2>Take a Moment</h2>
-					<p>
-						Press b or period on your keyboard to enter the 'paused' mode. This mode is helpful when you want to take distracting slides off the screen
-						during a presentation.
-					</p>
-				</section>
+    BOOST_PP_REPEAT(
+        BOOST_KARMA_NUMERICS_LOOP_UNROLL,
+        BOOST_KARMA_NUMERICS_INNER_LOOP_SUFFIX, _);
 
-				<section>
-					<h2>Stellar Links</h2>
-					<ul>
-						<li><a href="http://slid.es">Try the online editor</a></li>
-						<li><a href="https://github.com/hakimel/reveal.js">Source code on GitHub</a></li>
-						<li><a href="http://twitter.com/hakimel">Follow me on Twitter</a></li>
-					</ul>
-				</section>
+    *sink = char(ch);
+    ++sink;
+    return true;
+}
+</code></pre>
+</section>
+</section>
 
-				<section>
-					<h1>THE END</h1>
-					<h3>BY Hakim El Hattab / hakim.se</h3>
-				</section>
+<section>
+<h3>ループで非負整数 -> 文字列変換</h2>
+<pre><code class="cpp" style="font-size: 28px;">inline char* itoa10u(unsigned value, char *buflim) {
+    do {
+        *--buflim = value % 10 + '0';
+    } while ((value /= 10) != 0);
+    return buflim;
+}
+</code></pre>
+<pre><code class="cpp">// char buff[16] = {'\0'};
+// itoa10u(123, buff + 14); とした時の処理の流れ
+    => value = 123; buff[14] = '3';
+    => value = 12; buff[13] = '2';
+    => value = 1; buff[12] = '1';
+    => value = 0;</code></pre>
+<p>デメリット: 文字が先頭から入らない</p>
+<p>※itoa.cはこのwhileループ形式</p>
+<aside class="notes">
+
+</aside>
+</section>
+
+
+<section>
+<h3>再帰で非負整数 -> 文字列変換</h3>
+<pre><code class="cpp" style="font-size: 28px;">inline void itoa10u_r(unsigned value, char*& ptr) {
+    const char ch = value % 10 + '0';
+    value /= 10;
+    if (value != 0) itoa10u_r(value, ptr);
+    *ptr = ch;
+    ++ptr;
+}
+</code></pre>
+<pre><code class="cpp">// char buff[16]; char* ptr = buff;
+// ptr = itoa10u_r(123, ptr); *ptr = '\0'; とした時の処理の流れ
+    => value = 123; char ch1 = '3';
+    => value = 12; char ch2 = '2';
+    => value = 1; char ch3 = '1';
+    => value = 0;
+    => buff[0] = ch1; buff[1] = ch2; buff[2] = ch3;
+    => buff[3] = '\0';</code></pre>
+<p>デメリット: 関数の再帰呼び出しはオーバーヘッドがある</p>
+</section>
+
+<section>
+<h2>Karmaの解決策</h2>
+<p>マクロによるif文のネスト</p>
+<pre><code class="cpp">
+// 説明のため元のソースを簡略化してます。
+#define NUMERICS_LOOP_UNROLL 9
+#define NUMERICS_INNER_LOOP_PREFIX(z, x, data) \
+if (value != 0) { \
+const char ch = value % Base + '0'; \
+value /= Base; \
+/**/
+
+#define NUMERICS_INNER_LOOP_SUFFIX(z, x, data) \
+*ptr = ch; \
+++ptr; \
+} \
+
+template &lt;typename OutputIterator, typename T, unsigned Base&gt;
+static void call(OutputIterator& sink, T value)
+{
+    const char ch = value % Base + '0';
+    value /= Base;
+
+    // NUMERICS_LOOP_UNROLL回if文を貼り付けてネストします
+    BOOST_PP_REPEAT(
+        NUMERICS_LOOP_UNROLL,
+        NUMERICS_INNER_LOOP_PREFIX, _);
+
+    if (value != 0)
+        itoa_r_unroll<Base>(value, ptr);
+
+    BOOST_PP_REPEAT(
+        NUMERICS_LOOP_UNROLL,
+        NUMERICS_INNER_LOOP_SUFFIX, _);
+
+    *ptr = ch;
+    ++ptr;
+}
+</code></pre>
+</section>
+
+<section>
+<h2>要するにこういうこと</h2>
+<pre><code class="cpp">
+template &lt;typename OutputIterator, typename T, unsigned Base&gt;
+static void call(OutputIterator& sink, T value)
+{
+    const char ch = value % Base + '0';
+    value /= Base;
+
+    if (value != 0) {
+        const char ch = value % Base + '0';
+        value /= Base;
+
+        if (value != 0) {
+            const char ch = value % Base + '0';
+            value /= Base;
+            /* 実際はここでさらにネストが続く */
+            if (value != 0) {
+                itoa_r_unroll<Base>(value, ptr);
+            }
+            /* 実際はここでさらにネストが続く */
+            *ptr = ch;
+            ++ptr;
+        }
+        *ptr = ch;
+        ++ptr;
+    }
+    *ptr = ch;
+    ++ptr;
+}
+</code></pre>
+<!-- <p>どんどん変数をスタックしていくので遅いかも？と思いますが、実測値はループに引けをとりません</p> -->
+</section>
+
+<section>
+<h2>測定結果</h2>
+<p style="font-size: 28px">測定方法: std::rand() % 100000によって生成した<br>（大体）ランダムな非負整数の文字列変換を10000000回繰り返す</p>
+<br>
+<table>
+<tr><td>whileループ</td><td>0.0933456 [s]</td></tr>
+<tr><td>再帰展開 (Karma)</td><td>0.0889749 [s]</td></tr>
+</table>
+<p style="font-size: 28px">ただし桁数が8桁だと逆転（レジスタ数が影響？）</p>
+<p style="font-size: 28px">（32bit整数は上限10桁）</p>
+<table>
+<tr><td>whileループ</td><td>0.149797 [s]</td></tr>
+<tr><td>再帰展開 (Karma)</td><td>0.158777 [s]</td></tr>
+</table>
+<p>ほぼ互角-------------------------------------------------</p>
+<p style="font-size: 24px">実行環境: boost: 1.54.0, gcc: 4.8.2 コンパイルオプション: -O3, -std=c++1y, CPU: Core i3 4130T</p>
+</section>
+
+<section>
+<h2>演算速度を意識したitoaとKarmaの特殊化の話</h2>
+</section>
+
+<section>
+<h2>除算と剰余は遅い</h2>
+<table style = "float: left">
+<caption>SandyBridge</caption>
+	<tr><th></th><th>L32</th><th>T32</th><th>L64</th><th>T64</th></tr>
+	<tr><th>add</th><td>1</th><td>3</td><td>1</th><td>3</td></tr>
+	<tr><th>sub</th><td>1</th><td>3</td><td>1</th><td>3</td></tr>
+    <tr><th>imul</th><td>3</th><td>1</td><td>3</th><td>1</td></tr>
+	<tr><th>mul</th><td>4</th><td>0.5</td><td>4</th><td>1</td></tr>
+    <tr><th>div</th><td>26</th><td>-</td><td>92</th><td>-</td></tr>
+</table>
+<table style = "float: right">
+<caption>Haswell</caption>
+	<tr><th></th><th>L32</th><th>T32</th><th>L64</th><th>T64</th></tr>
+	<tr><th>add</th><td>1</th><td>4</td><td>1</th><td>4</td></tr>
+	<tr><th>sub</th><td>1</th><td>4</td><td>1</th><td>4</td></tr>
+    <tr><th>imul</th><td>3</th><td>1</td><td>3</th><td>1</td></tr>
+    <tr><th>mul</th><td>4</th><td>0.5</td><td>3</th><td>1</td></tr>
+	<tr><th>div</th><td>28</th><td>-</td><td>95</th><td>-</td></tr>
+</table>
+<div style = "clear: both"></div>
+<p>Lはレイテンシ、Tはスループット（命令数/サイクル）</p>
+<p>32, 64は整数のビット数</p>
+<p>除算'/'も剰余'%'もdiv命令を使用する</p>
+<p>参考文献: <a href="https://gmplib.org/~tege/x86-timing.pdf">https://gmplib.org/~tege/x86-timing.pdf</a></p>
+</section>
+
+<section>
+<section>
+<h3>コンパイラの定数除算最適化</h3>
+<p>除算は遅いので、定数除算は乗算と右シフトに変換される</p>
+<p>下記はunsigned型整数を10で除算する場合のアセンブリ</p>
+<pre><code class="x86asm" style="font-size: 28px;">
+    movl    %edi, %eax
+    movl    $-858993459, %edx
+    mull    %edx
+    shrl    $3, %edx
+    movl    %edx, %eax
+</pre></code>
+</section>
+
+<section>
+<h2>定数除算はunsinged型で</h2>
+<p>int型だと負数の可能性がある</p>
+<p>負数の右シフトは除算と等価ではない（負数シフトは切り上げになってしまう）</p>
+<p>そのため余分な処理が加わってしまう</p>
+<pre><code class="x86asm" style="font-size: 28px;">    movl    %edi, %eax
+    movl    $1717986919, %edx
+    sarl    $31, %edi
+    imull   %edx
+    sarl    $2, %edx
+    subl    %edi, %edx
+    movl    %edx, %eax
+</pre></code>
+<p>非負整数ならunsigned型にして余計な処理を省こう</p>
+</section>
+</section>
+
+<section>
+<h2>itoaの除算最適化</h2>
+<p>マクロで定数除算に</p>
+<pre><code class="cpp">  switch (base)
+    {
+#define SPECIAL(Base)							      \
+    case Base:								      \
+      do								      \
+	*--buflim = digits[value % Base];				      \
+      while ((value /= Base) != 0);					      \
+      break
+
+      SPECIAL (10);
+      SPECIAL (16);
+      SPECIAL (8);
+    default:
+      do
+	*--buflim = digits[value % base];
+      while ((value /= base) != 0);
+    }</code></pre>
+</section>
+
+<section>
+<h2>itoaのマクロのダメなとこ</h2>
+<ul>
+<li>ライブラリ設計者がマクロ展開する基数を選択<br> - itoaでは8, 10, 16が選択されている<br>
+ - そのため使用しなくても強制的にコードが展開される</li>
+ <li>コードが読みにくい。。</li>
+<!--<li>デバッグが困難になったり落とし穴があったり<br> - Effective C++ 3rd Edition Item 2 参照</li>-->
+</ul>
+</section>
+
+<section>
+<h2>Karmaの除算最適化</h2>
+<p>templateで定数除算に</p>
+<pre><code class="cpp" style="font-size: 28px">
+template &lt;unsigned Radix&gt;
+    struct divide
+    {
+        template &lt;typename T&gt;
+        static T call(T& n, mpl::true_)
+        {
+            return n / Radix;
+        }</code></pre>
+</section>
+
+<section>
+<h2>templateのいいところ</h2>
+<ul>
+<li>ライブラリ使用者が使った基数のみ定数に展開される</li>
+</ul>
+<br><br>
+<p>しかしtemplateの本当に素晴らしい点はパラメータに応じた処理の特殊化が可能なのところ（後述）</p>
+</section>
+
+<section>
+<h2>itoaの最適化不足</h2>
+<p>36進数用のテーブルを常に使用している</p>
+<pre><code class="cpp" style="font-size: 28px;">
+const char digits[36]
+	= "0123456789abcdefghijklmnopqrstuvwxyz";
+char ch = digits[value % base]; // 36進数までOK
+// 10進数までなら下（即値のadd命令）の方が速い
+// char ch = value % base + '0'; 
+</code></pre>
+</section>
+
+<section>
+<section>
+<h2>Karmaの特殊化</h2>
+<pre><code class="cpp">namespace detail {
+    template &lt;typename CharEncoding, typename Tag, bool radix_less_than_10&gt;
+    struct convert_digit
+    {/* 略 */};
+
+    template &lt;typename CharEncoding, typename Tag&gt;
+    struct convert_digit&lt;CharEncoding, Tag, true&gt; {
+        static int call(unsigned n)
+        {
+            return n + '0';
+        }
+    };
+}
+template &lt;unsigned Radix, typename CharEncoding, typename Tag&gt;
+struct convert_digit
+  : detail::convert_digit&lt;CharEncoding, Tag, (Radix &lt;= 10) ? true : false&gt;
+{};
+</code></pre>
+<p>radix_less_than_10 == trueの時、n + '0'としている</p>
+</section>
+<section>
+<h2>Karmaの特殊化（フルバージョン）</h2>
+<pre><code class="cpp">
+namespace detail
+    {
+        template &lt;typename CharEncoding, typename Tag, bool radix_less_than_10&gt;
+        struct convert_digit
+        {
+            static int call(unsigned n)
+            {
+                if (n &lt;= 9)
+                    return n + '0';
+
+                using spirit::char_class::convert;
+                return convert&lt;CharEncoding&gt;::to(Tag(), n - 10 + 'a');
+            }
+        };
+
+        template &lt;&gt;
+        struct convert_digit&lt;unused_type, unused_type, false&gt;
+        {
+            static int call(unsigned n)
+            {
+                if (n &lt;= 9)
+                    return n + '0';
+                return n - 10 + 'a';
+            }
+        };
+
+        template &lt;typename CharEncoding, typename Tag&gt;
+        struct convert_digit&lt;CharEncoding, Tag, true&gt;
+        {
+            static int call(unsigned n)
+            {
+                return n + '0';
+            }
+        };
+    }
+
+    template &lt;unsigned Radix, typename CharEncoding, typename Tag&gt;
+    struct convert_digit
+      : detail::convert_digit&lt;CharEncoding, Tag, (Radix &lt;= 10) ? true : false&gt;
+    {};
+	</code></pre>
+	</section>
+</section>
+
+<section>
+<h2>測定結果</h2>
+    <table>
+        <tr><td>テーブル参照</td><td>0.0932732 [s]</td></tr>
+        <tr><td>add命令(+'0')</td><td>0.0889749 [s]</td></tr>
+    </table>
+    <br>
+    <p>Karmaが10進数（以下）用に特殊化したのが正解！</p>
+</section>
+
+<section>
+<h3 style="line-height: 1.2em">Karmaの整数からstd::stringへの<br>変換は安全な上に速いという話</h3>
+</section>
+
+<section>
+<h3>templateはイテレータも受け付ける</h3>
+<pre><code class="cpp" style="font-size: 28px">
+template &lt;typename OutputIterator, typename T&gt;
+void generate(OutputIterator& it, T value)
+{
+    const char ch = value % Base + '0';
+    value /= Base;
+    /* 中略 */
+    *it = ch;
+    ++it;
+}
+</code></pre>
+</section>
+
+<section>
+<section>
+<h2>安全な文字列生成</h2>
+<p>back_insert_iteratorは内部でpush_backが呼ばれる</p>
+<p>std::stringのback_insert_iteratorを使えばバッファーオーバーフローの心配がない</p>
+<pre><code class="cpp" style="font-size: 28px">
+std::string str;
+std::back_insert_iterator&lt;std::string&gt; sink(str);
+boost::spirit::karma::generate(sink, v[i]);
+</code></pre>
+</section>
+
+<section>
+<h2>back_insert_iterator</h2>
+<pre><code class="cpp">template &lt;class Container&gt;
+  class back_insert_iterator :
+    public iterator&lt;output_iterator_tag,void,void,void,void&gt;
+{
+protected:
+  Container* container;
+public:
+  typedef Container container_type;
+  explicit back_insert_iterator (Container& x) : container(&x) {}
+
+  back_insert_iterator&lt;Container&gt;& operator=
+    (typename Container::const_reference value)
+    {
+        container-&gt;push_back(value); return *this;
+    }
+
+  back_insert_iterator&lt;Container&gt;& operator* ()
+    { return *this; }
+  back_insert_iterator&lt;Container&gt;& operator++ ()
+    { return *this; }
+  back_insert_iterator&lt;Container&gt; operator++ (int)
+    { return *this; }
+};
+</code></pre>
+</section>
+</section>
+
+<section>
+<h2>測定結果</h2>
+<p>char配列に入れるのと比較したら遅いが<br>std::stringにコピーするのと比べると速い</p>
+<table>
+<tr><td>Karma (直接stringへ)</td><td>0.263471 [s]</td></tr>
+<tr><td>itoa (char配列経由でstringへ)</td><td>0.283276 [s]</td></tr>
+</table>
+</section>
+
+<section>
+<h3 style="line-height: 1.2em">さらに機能を広げるためにKarmaが使用しているtemplateの技術の話</h3>
+</section>
+
+<section>
+<h2>タグディスパッチ</h2>
+<p>空のクラスで関数オーバーロード</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;boost/type_traits.hpp&gt;
+
+struct tag_signed {};
+struct tag_unsigned {};
+
+
+template &lt;typename T&gt;
+struct sign_tag {};
+
+template&lt;&gt;
+struct sign_tag&lt;unsigned&gt; {
+    typedef tag_unsigned type;
+};
+
+template&lt;&gt;
+struct sign_tag&lt;unsigned long&gt; {
+    typedef tag_unsigned type;
+};
+
+template&lt;&gt;
+struct sign_tag&lt;unsigned short&gt; {
+    typedef tag_unsigned type;
+};
+
+template&lt;&gt;
+struct sign_tag&lt;int&gt; {
+    typedef tag_signed type;
+};
+
+template&lt;&gt;
+struct sign_tag&lt;long&gt; {
+    typedef tag_signed type;
+};
+
+template&lt;&gt;
+struct sign_tag&lt;short&gt; {
+    typedef tag_signed type;
+};
+
+
+template &lt;typename T&gt;
+void print_abs(T value, tag_unsigned) {
+    std::cout &lt;&lt; value &lt;&lt; std::endl;
+}
+
+template &lt;typename T&gt;
+void print_abs(T value, tag_signed) {
+    if (value &lt; 0) {
+        value = -value;
+    }
+    print_abs(value, tag_unsigned());
+}
+
+template &lt;typename T&gt;
+void print_abs(T value) {
+    print_abs(value, typename sign_tag&lt;T&gt;::type());
+}
+
+int main() {
+    unsigned a = 1;
+    int b = -2;
+    print_abs(a);
+    print_abs(b);
+}
+</code></pre>
+</section>
+
+<!--
+<section>
+<h2>タグディスパッチ</h2>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;boost/type_traits.hpp&gt;
+
+struct tag_signed {};
+struct tag_unsigned {};
+
+template &lt;bool is_signed&gt;
+struct tag_selector {
+    typedef tag_signed sign_tag;
+};
+
+template&lt;&gt;
+struct tag_selector&lt;true&gt; {
+    typedef tag_unsigned sign_tag;
+};
+
+template &lt;typename T&gt;
+void print_abs(T value, tag_unsigned) {
+    std::cout &lt;&lt; value &lt;&lt; std::endl;
+}
+
+template &lt;typename T&gt;
+void print_abs(T value, tag_signed) {
+    if (value &lt; 0) {
+        value = -value;
+    }
+    print_abs(value, tag_unsigned());
+}
+
+template &lt;typename T&gt;
+void print_abs(T value) {
+    print_abs(value,
+    	typename tag_selector&lt;boost::is_unsigned&lt;T&gt;::value&gt;::sign_tag());
+}
+
+int main() {
+    unsigned a = 1;
+    int b = -2;
+    print_abs(a);
+    print_abs(b);
+}
+</code></pre>
+</section>
+-->
+<section>
+<section>
+<h2>SFINAE</h2>
+<p>Substitution Failure Is Not An Error</p>
+<p>関数オーバーロード解決時の失敗はエラーにならない</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;boost/type_traits.hpp&gt;
+
+template &lt;typename T&gt;
+void print_abs(T value,
+    typename boost::enable_if&lt;boost::is_unsigned&lt;T&gt; &gt;::type* = 0)
+{
+    std::cout &lt;&lt; value &lt;&lt; std::endl;
+}
+
+template &lt;typename T&gt;
+void print_abs(T value,
+    typename boost::enable_if&lt;boost::is_signed&lt;T&gt; &gt;::type* = 0)
+{
+    if (value &lt; 0) {
+        value = -value;
+    }
+    print_abs(static_cast&lt;typename boost::make_unsigned&lt;T&gt;::type&gt;(value));
+}
+
+int main() {
+    unsigned a = 1;
+    int b = -2;
+    print_abs(a);
+    print_abs(b);
+}
+</code></pre>
+</section>
+<section>
+<h2>enable_ifの定義</h2>
+<p>trueの時はtypeが存在</p>
+<p>falseの時はtypeが無い</p>
+<pre><code class="cpp" style = "font-size: 28px">
+template &lt;bool B, class T = void&gt;
+struct enable_if_c {
+  typedef T type;
+};
+
+template &lt;class T&gt;
+struct enable_if_c&lt;false, T&gt; {};
+
+template &lt;class Cond, class T = void&gt;
+struct enable_if : public enable_if_c&lt;Cond::value, T&gt; {}
+</code></pre>
+</section>
+</section>
+
+<section>
+<h2>使い分け (自分の場合)</h2>
+<p>その場でYES/NOで分類できるものはSFINAEが簡単</p>
+<p>いろいろな種類がある場合はタグディスパッチにすると分かりやすいコードになる</p>
+<br>
+<p>先程の例はenable_ifでその場で分類できるためSFINAEが楽</p>
+</section>
+
+<section>
+<h3>Karmaのタグディスパッチ例</h3>
+<pre><code class="cpp">template &lt;unsigned Radix&gt;
+struct remainder {
+    template &lt;typename T&gt;
+    static long call(T n, mpl::true_) {
+        return static_cast&lt;long&gt;(n % Radix);
+    }
+
+    template &lt;typename T&gt;
+    static long call(T n, mpl::false_) {
+        using namespace std;
+        return cast_to_long::call(fmod(n, T(Radix)));
+    }
+
+    template &lt;typename T&gt;
+    static long call(T n) {
+        return call(n, mpl::bool_&lt;is_integral&lt;T&gt;::value&gt;());
+    }
+};
+</code></pre>
+</section>
+
+<section>
+<h3>今回の例はあくまでごく一部</h3>
+<p>KarmaはタグディスパッチとSFINAEによって<br>整数型・浮動小数点型、複数の文字エンコーディング、フォーマット指定、全てコンパイル時に関数オーバーロードによる柔軟な分岐が行われます。</p>
+</section>
+
+
+<section>
+<h2>余談</h2>
+<p>もっと速い方法</p>
+</section>
+
+<section>
+<h2>テーブル参照</h2>
+<p>char table[][] = {"0", "1", "2", "3", ..., "99998", "99999"}</p>
+<p>table[value]とすれば求める文字列がそのまま得られる</p>
+<pre><code class="cpp">
+constexpr unsigned log10i(unsigned n) {
+    return n == 0 ? 0 : 1 + log10i(n  / 10);
+}
+
+struct exec {
+    template &lt;class Func&gt;
+    exec(Func f) { f(); }
+};
+
+template &lt;unsigned Size, class T&gt;
+void itoa_table(T value, char* ptr,
+    typename std::enable_if&lt;std::is_unsigned&lt;T&gt;::value&gt;::type* = 0)
+{
+    static constexpr unsigned N = log10i(Size);
+    // テーブルのサイズより大きい場合は通常の関数を呼び出す
+    if (value &gt;= Size) {
+        itoa_r_unroll&lt;10&gt;(value, ptr);
+        *ptr = '\0';
+    }
+    static char table[Size][N + 1];
+    // プログラム起動時に一度だけテーブル作成を行う
+    // table[][] = {"0", "1", "2", "3", ...}
+    static exec obj([&](){
+        for (unsigned i = 0; i &lt; Size; ++i) {
+            char* p = table[i];
+            itoa_r_unroll&lt;10&gt;(i, p);
+            *p = '\0';
+        }
+    });
+    // メインの処理。テーブル参照してコピーするだけ
+    memcpy(ptr, table[value], N + 1);
+}
+</code></pre>
+</section>
+
+<section>
+<h2>テーブル参照</h2>
+<p style="font-size: 28px">0～999（3桁以下）の時</p>
+<table>
+<tr><td>Karma</td><td>0.0544444 [s]</td></tr>
+<tr><td>table</td><td>0.0125933 [s]</td></tr>
+</table>
+<p style="font-size: 28px">0～99999（5桁以下）の時</p>
+<table>
+<tr><td>Karma</td><td>0.0886336 [s]</td></tr>
+<tr><td>table</td><td>0.028223 [s]</td></tr>
+</table>
+<p style="font-size: 28px">0～999999（7桁以下）の時</p>
+<table>
+<tr><td>Karma</td><td>0.130676 [s]</td></tr>
+<tr><td>table</td><td>0.270482 [s]</td></tr>
+</table>
+<p>桁数が大きくなければ実は一番速い</p>
+<p>桁数が大きくなったら遅くなる</p>
+</section>
+
+<section>
+<h2>テーブル参照使用のコツ</h2>
+<p>CPUのキャッシュサイズに収まるのが目安</p>
+<p>Core i7-4770 (Haswell) のキャッシュサイズとレイテンシ</p>
+<ul>
+<li>L1: 64 KB (per core), 4サイクル</li>
+<li>L2: 256 KB (per core), 12サイクル</li>
+<li>L3: 8 MB (shared), 36サイクル</li>
+</ul>
+<p>メインメモリは数百サイクル（激遅！）</p>
+<p>参考記事: <a href="http://www.7-cpu.com/cpu/Haswell.html">http://www.7-cpu.com/cpu/Haswell.html</a></p>
+</section>
+
+<section>
+<h2>まとめ</h2>
+<ul>
+<li>Karmaの高速化のキモは愚直なアイデアと特殊化</li>
+<li>特殊化を支援する強力な武器がtemplate</li>
+<li>効果的な特殊化のためには演算速度の知識が必要</li>
+<li>しかしKarmaも完全に細かく特殊化しているわけではない</li>
+<li>テーブル参照は凡庸だがしばしば最強の特殊化</li>
+</ul>
+</section>
+
 
 			</div>
 
